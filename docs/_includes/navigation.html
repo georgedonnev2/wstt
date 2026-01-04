@@ -30,8 +30,9 @@
   {% for item in site.data.navigation %}
     <a
       href="{{ item.link }}"
+      style="color: #0000ff;"
       {% if page.url == item.link %}
-        style=" color: #007bff;text-decoration: line-through;background-color: #666;"
+        style="color: #007bff;"
       {% endif %}
     >
       {{ item.name }}
