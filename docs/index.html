@@ -1,14 +1,16 @@
 ---
+title: Home
 ---
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Home</title>
+    <title>{{ page.title }}</title>
   </head>
   <body>
      <h1>{{ "Hello World!" | downcase }}</h1>
     <h2>Jekyll + Github Pages 测试</h2>
     <p>欢迎访问 Jekyll + Github Pages 测试</p>
+    <p>title is {{ page.title }}</p>
   </body>
 </html>
