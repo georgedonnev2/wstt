@@ -1,25 +1,40 @@
-{% comment %}
+<!--
   <nav>
-      <a href="/wstt">Home</a>
-      <a href="/wstt/about.html">About</a>
+    <a href="/wstt">Home</a>
+    <a href="/wstt/about.html">About</a>
   </nav>
-{% endcomment %}
+-->
+
+<!--
+  <nav>
+    <a
+      href="/wstt"
+      {% if page.url == '/wstt' %}
+        style="color: red;"
+      {% endif %}
+    >
+      Home
+    </a>
+    <a
+      href="/wstt/about.html"
+      {% if page.url == '/wstt/about.html' %}
+        style="color: red;"
+      {% endif %}
+    >
+      About
+    </a>
+  </nav>
+-->
 
 <nav>
-  <a
-    href="/wstt"
-    {% if page.url == '/wstt' %}
-      style="color: red;"
-    {% endif %}
-  >
-    Home
-  </a>
-  <a
-    href="/wstt/about.html"
-    {% if page.url == '/wstt/about.html' %}
-      style="color: red;"
-    {% endif %}
-  >
-    About
-  </a>
+  {% for item in site.data.navigation %}
+    <a
+      href="{{ item.link }}"
+      {% if page.url == item.link %}
+        style=" color: #007bff;text-decoration: line-through;background-color: #666;"
+      {% endif %}
+    >
+      {{ item.name }}
+    </a>
+  {% endfor %}
 </nav>
