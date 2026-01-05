@@ -80,11 +80,6 @@ Primer Spec offers five variants of callouts:
 
 `_config.yml` 增加：
 
-```yaml
-title: Github Pages + Jekyll Test
-description: test Github Pages + Jekyll + Theme
-favicon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M160 144C151.2 144 144 151.2 144 160L144 480C144 488.8 151.2 496 160 496L480 496C488.8 496 496 488.8 496 480L496 160C496 151.2 488.8 144 480 144L160 144zM96 160C96 124.7 124.7 96 160 96L480 96C515.3 96 544 124.7 544 160L544 480C544 515.3 515.3 544 480 544L160 544C124.7 544 96 515.3 96 480L96 160zM224 192C241.7 192 256 206.3 256 224C256 241.7 241.7 256 224 256C206.3 256 192 241.7 192 224C192 206.3 206.3 192 224 192zM360 264C368.5 264 376.4 268.5 380.7 275.8L460.7 411.8C465.1 419.2 465.1 428.4 460.8 435.9C456.5 443.4 448.6 448 440 448L200 448C191.1 448 182.8 443 178.7 435.1C174.6 427.2 175.2 417.6 180.3 410.3L236.3 330.3C240.8 323.9 248.1 320.1 256 320.1C263.9 320.1 271.2 323.9 275.7 330.3L292.9 354.9L339.4 275.9C343.7 268.6 351.6 264.1 360.1 264.1z"/></svg>
-```
 
 ```yml
 title: Github Pages + Jekyll Test
@@ -100,3 +95,188 @@ favicon: /assets/favicon/blog-solid-full.svg
 {: .primer-spec-toc-ignore }
 
 阿斯蒂芬开讲啦地方
+
+### 增强的代码块
+
+在代码块下方输入 `{: data-highlight="3-6,12" }`，可以高亮显示3到6行、12行。
+
+```python
+import datetime
+
+def main():
+    print("=" * 40)
+    print("Hello World!")
+    print("=" * 40)
+    
+    # 获取当前时间
+    now = datetime.datetime.now()
+    
+    # 输出不同格式的时间信息
+    print(f"当前日期和时间: {now.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"当前日期: {now.strftime('%Y年%m月%d日')}")
+    print(f"当前时间: {now.strftime('%H时%M分%S秒')}")
+    
+    # 星期几（中文）
+    weekdays = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+    print(f"今天是: {weekdays[now.weekday()]}")
+    
+    # 时间戳
+    print(f"时间戳: {int(now.timestamp())}")
+    
+    print("=" * 40)
+
+if __name__ == "__main__":
+    main()
+```
+{: data-highlight="3-6,12" }
+
+<!--  -->
+或者，在代码中增加 `# primer-spec-highlight-start` 和 `# primer-spec-highlight-end` ，期间的代码也可以高亮。
+
+```python
+import datetime
+
+def main():
+    print("=" * 40)
+    print("Hello World!")
+    print("=" * 40)
+    
+    # 获取当前时间
+    now = datetime.datetime.now()
+    
+    # primer-spec-highlight-start
+    # 输出不同格式的时间信息
+    print(f"当前日期和时间: {now.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"当前日期: {now.strftime('%Y年%m月%d日')}")
+    print(f"当前时间: {now.strftime('%H时%M分%S秒')}")
+    # primer-spec-highlight-end
+    
+    # 星期几（中文）
+    weekdays = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+    print(f"今天是: {weekdays[now.weekday()]}")
+    
+    # 时间戳
+    print(f"时间戳: {int(now.timestamp())}")
+    
+    print("=" * 40)
+
+if __name__ == "__main__":
+    main()
+```
+{: data-highlight="3-4" }
+
+<!--  -->
+console 高亮显示。代码块语言是 `console`。
+
+```console
+~/gdweb/wstt % pwd
+/Users/george1442/gdweb/wstt
+~/gdweb/wstt % tree
+.
+└── docs
+    ├── README.md
+    ├── _config.yml
+    ├── _data
+    │   └── navigation.yml
+    ├── _includes
+    │   └── navigation.html
+    ├── _layouts
+    │   └── default.html
+    ├── about.md
+    ├── assets
+    │   └── favicon
+    │       └── blog-solid-full.svg
+    ├── bk-index.html
+    └── guide.md
+
+7 directories, 9 files
+~/gdweb/wstt % ls
+docs
+~/gdweb/wstt % cd docs
+~/gdweb/wstt/docs % ls
+README.md     _data         _layouts      assets        guide.md
+_config.yml   _includes     about.md      bk-index.html
+~/gdweb/wstt/docs % cat about.md
+---
+layout: default
+title: About
+---
+
+# About page
+
+This page tells you a little bit about me.
+title is {{ page.title }}.
+```
+
+<!--  -->
+还可以给代码块加标题。在代码块后面加 `{: data-title="打印时间的各种格式" }`。
+
+```python
+import datetime
+
+def main():
+    print("=" * 40)
+    print("Hello World!")
+    print("=" * 40)
+    
+    # 获取当前时间
+    now = datetime.datetime.now()
+    
+    # primer-spec-highlight-start
+    # 输出不同格式的时间信息
+    print(f"当前日期和时间: {now.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"当前日期: {now.strftime('%Y年%m月%d日')}")
+    print(f"当前时间: {now.strftime('%H时%M分%S秒')}")
+    # primer-spec-highlight-end
+    
+    # 星期几（中文）
+    weekdays = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+    print(f"今天是: {weekdays[now.weekday()]}")
+    
+    # 时间戳
+    print(f"时间戳: {int(now.timestamp())}")
+    
+    print("=" * 40)
+
+if __name__ == "__main__":
+    main()
+```
+{: data-highlight="3-4" }
+{: data-title="打印时间的各种格式" }
+
+<!--  -->
+不显示行号。在代码块后面增加 `{: data-variant="no-line-numbers"}`。
+
+```python
+import datetime
+
+def main():
+    print("=" * 40)
+    print("Hello World!")
+    print("=" * 40)
+    
+    # 获取当前时间
+    now = datetime.datetime.now()
+    
+    # primer-spec-highlight-start
+    # 输出不同格式的时间信息
+    print(f"当前日期和时间: {now.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"当前日期: {now.strftime('%Y年%m月%d日')}")
+    print(f"当前时间: {now.strftime('%H时%M分%S秒')}")
+    # primer-spec-highlight-end
+    
+    # 星期几（中文）
+    weekdays = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+    print(f"今天是: {weekdays[now.weekday()]}")
+    
+    # 时间戳
+    print(f"时间戳: {int(now.timestamp())}")
+    
+    print("=" * 40)
+
+if __name__ == "__main__":
+    main()
+```
+{: data-highlight="3-4" }
+{: data-title="打印时间的各种格式" }
+{: data-variant="no-line-numbers"}
