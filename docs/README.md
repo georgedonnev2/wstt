@@ -6,13 +6,14 @@ layout: spec
 
 欢迎访问 Jekyll + Github Pages 测试
 
-## primer-spec theme
+## Primer-Spec theme 测试
 
 以下是关于 primer-spec theme 的测试情况。
 
 参考 [https://github.com/eecs485staff/primer-spec](https://github.com/eecs485staff/primer-spec)：
 
 - 在 webpage 顶部增加
+
 ```markdown
 ---
 layout: spec
@@ -20,6 +21,7 @@ layout: spec
 ```
 
 - 在网站 root 目录下增加 `_config.yml`。主要内容如下：
+
 ```yml
 remote_theme: eecs485staff/primer-spec
 plugins:
