@@ -1,7 +1,5 @@
 
-title: Github Pages + Jekyll Test
-description: test Github Pages + Jekyll + Theme
-favicon: /assets/favicon/blog-solid-full.svg
+
 
 
 remote_theme: eecs485staff/primer-spec
@@ -10,9 +8,27 @@ plugins:
   - jekyll-optional-front-matter
   - jekyll-readme-index
   - jekyll-relative-links
+  - jekyll-default-layout
   - jemoji
 kramdown:
   input: GFM
 readme_index:
   remove_originals: true
   with_frontmatter: true
+
+title: Web Test
+description: test Github Pages + Jekyll + Theme
+favicon: /assets/favicon/blog-solid-full.svg
+
+primerSpec:
+  sitemap:
+    label: Web Docs
+    # Setting the label to an empty string removes the label from the sitemap.
+    # label: ''
+    externalLinks:
+      - title: 'Huawei Cloud'
+        url: hhttps://www.huaweicloud.com/
+      - title: 'AICSS'
+        url: https://ai.jiangnan.edu.cn/
+      - title: 'GitHub'
+        url: https://github.com/
