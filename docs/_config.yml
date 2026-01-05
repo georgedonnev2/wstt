@@ -22,12 +22,12 @@ favicon: /assets/favicon/blog-solid-full.svg
 
 primerSpec:
   sitemap:
-    label: Web Docs
+    # label: Web Docs
     # Setting the label to an empty string removes the label from the sitemap.
-    # label: ''
+    label: ''
     externalLinks:
       - title: 'Huawei Cloud'
-        url: hhttps://www.huaweicloud.com/
+        url: https://www.huaweicloud.com/
       - title: 'AICSS'
         url: https://ai.jiangnan.edu.cn/
       - title: 'GitHub'
