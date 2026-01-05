@@ -215,6 +215,7 @@ title: About
 This page tells you a little bit about me.
 title is {{ page.title }}.
 ```
+{: data-highlight="1,3,22,24,25,28" data-title="markdown" }
 
 console 高亮（样例2）
 
