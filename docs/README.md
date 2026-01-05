@@ -1,5 +1,11 @@
 ---
 layout: spec
+
+# Render LaTeX expressions
+latex: true
+
+# Render diagrams using Mermaid syntax and rendering
+mermaid: true
 ---
 
 # Jekyll + Github Pages 测试
@@ -208,6 +214,28 @@ This page tells you a little bit about me.
 title is {{ page.title }}.
 ```
 
+console 高亮（样例2）
+
+```console
+$ pwd
+/Users/awdeorio/src/eecs485/p2-insta485-serverside
+$ tree insta485/static/
+insta485/static/
+├── css
+│   └── style.css
+└── images
+    └── logo.png
+$ touch insta485/model.py
+$ mapreduce-manager \
+    --host localhost \
+    --port 6000 \
+    --hb-port 5999 \
+    --log-file mapreduce-manager.log &
+Error: Not implemented
+```
+{: data-highlight="1,3,9" data-title="markdown" }
+```
+
 <!--  -->
 还可以给代码块加标题。在代码块后面加 `{: data-title="打印时间的各种格式" }`。
 
@@ -280,3 +308,52 @@ if __name__ == "__main__":
 {: data-highlight="3-4" }
 {: data-title="打印时间的各种格式" }
 {: data-variant="no-line-numbers"}
+
+### 页面级别的设置
+
+支持以下页面级别的设置：
+
+```yml
+---
+layout: spec
+
+# Disable the Sidebar completely
+disableSidebar: true
+
+# Prevent the sidebar (with table of contents) from appearing when a user loads the page. Defaults to false
+hideSidebarOnLoad: Boolean
+
+# Render LaTeX expressions
+latex: true
+
+# Render diagrams using Mermaid syntax and rendering
+mermaid: true
+---
+...your webpage's MarkDown/HTML content...
+
+```
+
+**测试 LaTeX**
+
+LaTeX can be inlined ($$ \forall x \in R $$) or as a separate math block.
+
+$$
+-b \pm \sqrt{b^2 - 4ac} \over 2a
+$$
+
+**测试 Mermaid**
+
+Use Mermaid to render flow charts, sequence diagrams and more!
+
+
+```mermaid
+graph TD;
+  A-->B;
+  A-->C;
+  B-->D;
+  C-->D;
+```
+{:
+  data-title="Basic example of a flowchart"
+  data-description="A links to B and C. B and C link to D."
+}
