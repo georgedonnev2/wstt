@@ -177,9 +177,9 @@ if __name__ == "__main__":
 console 高亮显示。代码块语言是 `console`。
 
 ```console
-~/gdweb/wstt % pwd
+~/gdweb/wstt $ pwd
 /Users/george1442/gdweb/wstt
-~/gdweb/wstt % tree
+~/gdweb/wstt $ tree
 .
 └── docs
     ├── README.md
@@ -198,13 +198,13 @@ console 高亮显示。代码块语言是 `console`。
     └── guide.md
 
 7 directories, 9 files
-~/gdweb/wstt % ls
+~/gdweb/wstt $ ls
 docs
-~/gdweb/wstt % cd docs
-~/gdweb/wstt/docs % ls
+~/gdweb/wstt $ cd docs
+~/gdweb/wstt/docs $ ls
 README.md     _data         _layouts      assets        guide.md
 _config.yml   _includes     about.md      bk-index.html
-~/gdweb/wstt/docs % cat about.md
+~/gdweb/wstt/docs $ cat about.md
 ---
 layout: default
 title: About
@@ -236,7 +236,7 @@ $ mapreduce-manager \
 Error: Not implemented
 ```
 {: data-highlight="1,3,9" data-title="markdown" }
-```
+
 
 <!--  -->
 还可以给代码块加标题。在代码块后面加 `{: data-title="打印时间的各种格式" }`。
