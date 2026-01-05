@@ -1,7 +1,9 @@
 ---
 layout: spec
-title: Home Hello World
+title: backup
+sitemapOrder: 6
 ---
+
 <h1>{{ "Hello World!" | downcase }}</h1>
 <h2>Jekyll + Github Pages 测试</h2>
 <p>欢迎访问 Jekyll + Github Pages 测试</p>

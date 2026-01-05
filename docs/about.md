@@ -1,6 +1,7 @@
 ---
 layout: spec
 title: About
+sitemapOrder: 10
 ---
 
 # About page

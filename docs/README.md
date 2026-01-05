@@ -6,6 +6,8 @@ latex: true
 
 # Render diagrams using Mermaid syntax and rendering
 mermaid: true
+
+sitemapOrder: 1
 ---
 
 # Jekyll + Github Pages 测试
