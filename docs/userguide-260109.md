@@ -1,0 +1,385 @@
+# 实验手册
+
+**基于 LLVM 的程序特征提取与编译优化序列预测实验**
+
+---
+
+## 一、实验目的
+
+本实验旨在引导学生完成一个完整的基于 LLVM 的编译优化预测流程，包括：
+
+1. 构建 LLVM 及相关工具链；
+2. 构建并使用特征提取 Pass；
+3. 收集训练集程序的特征与最优优化序列；
+4. 训练优化序列预测模型；
+5. 对目标程序进行特征提取与推理；
+6. 使用预测得到的优化序列编译并运行目标程序，验证性能效果。
+
+---
+
+## 二、实验环境准备
+
+### 复制代码到自己的 HOME 目录
+
+登录到服务器后，执行 `cd` （不带目录名），可切换到自己的 `HOME` 目录。当前 HOME 目录都是 `/mnt/data/用户名`。
+
+在 HOME 目录时，执行如下命令，复制 2 个 tar.gz 文件到自己的 HOME 目录。
+```bash
+cp -v /mnt/data/gdv2/tar/* . 
+```
+
+复制完成后， HOME 目录中应该有2个文件：
+```bash
+[gdv2@localhost tar]$ ls -lh
+总用量 1.3G
+-rw-r--r-- 1 gdv2 gdv2  54M  1月  8 10:40 MLllvm.tar.gz
+-rw-r--r-- 1 gdv2 gdv2 1.3G  1月  8 10:40 swllvm.tar.gz
+```
+
+依次执行以下命令，解压缩 2 个 tar.gz 包。
+```bash
+tar -xvf swllvm.tar.gz
+tar -xvf MLllvm.tar.gz
+```
+
+执行完成后，在 HOME 目录生成 2 个新目录，如下：
+```bash
+[gdv2@localhost ~]$ ls -l
+总用量 54632
+drwxr-xr-x  8 gdv2 gdv2     4096  1月  7 11:55 MLllvm
+drwxr-xr-x 24 gdv2 gdv2     4096  1月  8 15:10 swllvm
+```
+
+### 1. LLVM 构建
+
+在给定的 LLVM 根目录（如上述解压缩生成的 `swllvm` 目录）下，直接运行脚本：
+
+```bash
+chmod +x mk-native.sh
+```
+
+```bash
+./mk-native.sh
+```
+
+LLVM 构建需要一定时间，可观看屏幕输出信息中的完成百分比。比如：
+```bash
+...
+[ 86%] Built target llvm-extract
+[ 86%] Building CXX object tools/llvm-sim/CMakeFiles/llvm-sim.dir/llvm-sim.cpp.o
+[ 86%] Linking CXX executable ../../bin/llvm-cxxdump
+[ 86%] Built target llvm-as
+[ 86%] Building CXX object tools/llvm-reduce/CMakeFiles/llvm-reduce.dir/deltas/Delta.cpp.o
+[ 86%] Building CXX object tools/llvm-reduce/CMakeFiles/llvm-reduce.dir/TestRunner.cpp.o
+[ 86%] Building CXX object tools/llvm-size/CMakeFiles/llvm-size.dir/llvm-size.cpp.o
+[ 86%] Building CXX object tools/lld/Common/CMakeFiles/lldCommon.dir/Strings.cpp.o
+[ 86%] Building CXX object tools/lld/Common/CMakeFiles/lldCommon.dir/TargetOptionsCommandFlags.cpp.o
+[ 86%] Building CXX object tools/llvm-profgen/CMakeFiles/llvm-profgen.dir/PerfReader.cpp.o
+[ 86%] Linking CXX executable ../../bin/llvm-isel-fuzzer
+[ 86%] Built target llvm-libtool-darwin
+[ 86%] Linking CXX executable ../../bin/llvm-rust-demangle-fuzzer
+[ 86%] Building CXX object tools/llvm-special-case-list-fuzzer/CMakeFiles/llvm-special-case-list-fuzzer.dir/DummySpecialCaseListFuzzer.cpp.o
+...
+```
+
+执行完成后将生成以下目录：
+
+- `build/`：LLVM 构建结果，开发者视角
+- `tools/`：LLVM 构建结果，用户视角
+
+这里执行过程中学习一下脚本内容。
+
+随后配置环境变量（示例）：
+
+```bash
+export PATH=/path/to/llvm/build/bin:$PATH
+```
+
+比如用户 gdv2 的 llvm/build/bin 如下：
+```bash
+[gdv2@localhost bin]$ pwd
+/mnt/data/gdv2/swllvm/build/bin
+```
+因此可以设置环境变量为：
+```bash
+export PATH=/mnt/data/gdv2/swllvm/build/bin:$PATH
+```
+
+可以将上述命令增加到 HOME 目录下的 `.bashrc` 中，这样就可以避免每次打开 `终端` 都是设置环境变脸。
+
+
+
+确认 `clang`、`opt` 等命令可正常使用。
+
+执行 `clang --version`，样例输出如下：
+```bash
+[gdv2@localhost ~]$ clang --version
+clang version 13.0.0 (/mnt/data/gdv2/swllvm/clang d71fe53af59eb7ed76b7eb9cca109d7c41faaf1e)
+Target: sw_64-sunway-linux-gnu
+Thread model: posix
+InstalledDir: /mnt/data/gdv2/swllvm/build/bin
+```
+
+执行 `opt --version`，样例输出如下：
+```bash
+[gdv2@localhost ~]$ opt --version
+LLVM (http://llvm.org/):
+  LLVM version 13.0.0
+  Optimized build.
+  Default target: sw_64-sunway-linux-gnu
+  Host CPU: sw_64
+```
+
+---
+
+## 三、构建特征提取 Pass（featurePass）
+
+进入 featurePass 的构建目录并编译：
+
+```bash
+cd MLllvm/featurePass/
+rm -rf build
+mkdir build
+cd build
+cmake ..
+make
+```
+
+编译成功后，将生成用于 LLVM 特征提取的 Pass 动态库，用于程序特征提取。
+
+`featurePass` 是一个 **自定义 LLVM Pass**，其功能是：
+
+- 在 **编译期分析程序的 LLVM IR**
+- 提取用于机器学习的 **静态程序特征**
+- 将程序结构信息转化为数值化特征（如基本块数、分支信息、循环信息等）
+
+单独构建featurepass原因在于：
+
+1. LLVM 本身只提供通用优化能力；
+2. 本实验需要 **面向机器学习的特征**；
+3. 这些特征并非 LLVM 默认输出内容。
+
+因此：
+
+- `featurePass` 以 **插件形式**编译；
+- 在 `opt` 或 `clang` 执行过程中被动态加载；
+- 不影响 LLVM 本身的正常使用。
+
+**可尝试的优化**：理清当前该pass提取了什么特征，是否可以有其他特征作为补充。
+
+---
+
+## 四、训练数据收集（训练集）
+
+在脚本目录（MLllvm/scripts）下
+
+### 1. 记录训练集程序的最优优化序列
+
+首先选择搜索空间（与程序性能高度相关的优化选项），生成所有的排列组合。
+
+```bash
+python3 generate.py
+```
+
+生成结果记录在optimization_permutations.txt，对训练集程序用每个优化序列执行，记录其最优优化序列：
+
+```bash
+python3 runopt.py ../files/train
+```
+
+输出结果将保存为 `best_optimization_results.csv`。大致需要运行 10 多分钟。
+
+其中train目录下存有训练程序
+
+**可尝试的优化**：
+
+1. 搜索空间选择，选择更优的选项搭配
+2. 搜索空间缩减，提前排除不可能的选项组合，提高执行效率。
+3. 丰富训练集程序，训练集程序目前都是单文件对应单个程序，是否可以尝试多文件对应单程序，有哪些需要修改
+
+---
+
+### 2. 训练集特征提取
+
+对训练集程序进行 LLVM 特征提取：
+
+```bash
+python3 train-collectFeatures.py training ../files/train
+```
+
+该步骤会生成每个训练程序对应的静态特征文件。
+
+---
+
+### 3. 训练集特征合并
+
+将特征数据与最优优化序列进行合并，生成模型训练所需的 CSV 文件：
+
+```bash
+python3 combineFeatures.py \
+  --training_opt best_optimization_results.csv \
+  training \
+  ../model/training.csv
+```
+
+---
+
+## 五、模型训练
+
+使用合并后的训练数据训练模型：
+
+```bash
+cd MLllvm/model
+python3 train.py
+```
+
+训练完成后，将在 `model/` 目录下生成训练好的模型文件。
+
+**可尝试的优化**：当前给出的train.py用了很基础的机器学习模型，是否可以在输入输出不变或修改输入输出的情况下优化模型。
+
+---
+
+## 六、目标程序特征收集（测试阶段）
+
+以 `cBench/automotive_bitcount` 为例说明目标程序的处理流程。在scripts目录
+
+### 1. 目标程序特征提取
+
+```bash
+python3 spec-collectFeatures.py training ../files/cBench/automotive_bitcount/src/
+```
+
+屏幕输出信息如下：
+```bash
+[gdv2@localhost scripts]$ python3 spec-collectFeatures.py training ../files/cBench/automotive_bitcount/src/
+Step 1: Compile all .c to .bc
+Compiling bitarray.c
+Compiling bitcnt_1.c
+Compiling bitcnt_2.c
+Compiling bitcnt_3.c
+Compiling bitcnt_4.c
+Compiling bitcnts.c
+Compiling bitfiles.c
+Compiling bitstrng.c
+Compiling bstr_i.c
+Compiling loop-wrap.c
+Step 2: Link all .bc files into one
+Step 3: Add PGO instrumentation
+Step 4: Compile profiled bitcode to object
+Step 5: Link object file to PIE executable with instrumentation
+Step 6: Run instrumented executable to generate profile data
+Found dataset:  1
+Command line:   1125000 > ftmp_out
+Loop wrap:      80
+
+
+
+
+real	1m0.277s
+user	1m0.270s
+sys	0m0.000s
+Step 7: Merge profile data
+Step 8: Apply profile data to original bitcode
+Feature extraction complete, output saved to features.csv
+Step 1: Compile all .c to .bc
+Compiling bitarray.c
+Compiling bitcnt_1.c
+Compiling bitcnt_2.c
+Compiling bitcnt_3.c
+Compiling bitcnt_4.c
+Compiling bitcnts.c
+Compiling bitfiles.c
+Compiling bitstrng.c
+Compiling bstr_i.c
+Compiling loop-wrap.c
+Step 2: Link all .bc files into one
+Step 3: Add PGO instrumentation
+Step 4: Compile profiled bitcode to object
+Step 5: Link object file to PIE executable with instrumentation
+Step 6: Run instrumented executable to generate profile data
+Found dataset:  1
+Command line:   1125000 > ftmp_out
+Loop wrap:      80
+
+
+real	0m59.997s
+user	1m0.000s
+sys	0m0.000s
+Step 7: Merge profile data
+Step 8: Apply profile data to original bitcode
+Feature extraction complete, output saved to loop_features.csv
+```
+<!-- ![image.png](image%201.png) -->
+
+---
+
+### 2. 目标程序特征合并
+
+```bash
+python3 combineFeatures.py test test.csv
+```
+
+该步骤将生成模型推理所需的目标程序特征文件。
+
+---
+
+## 七、优化序列推理
+
+使用训练好的模型，对目标程序推理其优化序列：
+
+```bash
+cd ../model
+cp ../scripts/test.csv .
+python3 infer.py
+```
+
+程序将输出推荐的 LLVM 编译优化选项序列。
+
+```bash
+[gdv2@localhost model]$ python3 infer.py
+===== 模型预测程序开始 =====
+开始加载优化序列...
+成功加载 252 个优化序列
+
+===== 预测结果 =====
+文件名                  | 预测优化序列
+------------------------------------------------------------
+92
+specified files      | -fsw-auto-inc-dec -fsw-rev -fsw-cmov -fsw-use-cas -fno-vectorize -funswitch-loops -mllvm -inline-threshold=100 -mllvm -unroll-threshold=150
+
+------------------------------------------------------------
+所有预测结果已保存至: predictions.csv
+===== 模型预测程序结束 =====
+```
+
+<!-- ![image.png](image%202.png) -->
+
+---
+
+## 八、目标程序编译与运行验证
+
+进入目标程序目录：
+
+```bash
+cd MLllvm/files/cBench/automotive_bitcount/src/
+```
+
+### 1. 编译程序
+
+在默认 `-O3` 的基础上，加上 `infer.py` 输出的优化选项：
+
+```bash
+clang -O3 ./*.c <infer.py 输出的优化选项>
+```
+
+---
+
+### 2. 运行程序
+
+```bash
+./__run 1
+```
+
+记录运行时间指标，用于与默认 `-O3` 编译结果进行对比分析。
+
+---
